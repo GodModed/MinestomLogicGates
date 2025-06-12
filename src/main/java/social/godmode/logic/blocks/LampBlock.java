@@ -14,7 +14,10 @@ public class LampBlock extends LogicBlock {
     @Override
     public void revise() {
 
-        if (getInputs().isEmpty()) setPowered(false);
+        if (getInputs().isEmpty()) {
+            setPowered(false);
+            return;
+        }
         setPowered(getInputs().getFirst().isPowered());
 
         if (isPowered()) {
@@ -23,7 +26,6 @@ public class LampBlock extends LogicBlock {
             getInstance().setBlock(getPosition(), Block.REDSTONE_LAMP.withProperty("lit", "false"));
         }
 
-        super.revise();
     }
 
     @Override

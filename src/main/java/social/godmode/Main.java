@@ -148,6 +148,10 @@ public class Main {
             logicBlock.setPowered(!logicBlock.isPowered());
 
         });
+
+        handler.addListener(PlayerBlockBreakEvent.class, event -> {
+           event.setCancelled(true);
+        });
     }
 
     private static void msptBossBar() {

@@ -39,37 +39,42 @@ public abstract class LogicBlock extends Entity {
             meta.setBillboardRenderConstraints(AbstractDisplayMeta.BillboardConstraints.VERTICAL);
         });
 
-        setInstance(instance, pos);
+        Pos finalPos = pos;
+        setInstance(instance).thenRun(() -> {
+            teleport(finalPos);
+        });
         instance.setBlock(position, block);
         this.name = name;
 
         allBlocks.add(this);
+        revise();
     }
 
     public void addInput(LogicBlock input) {
         if (inputs.contains(input)) return;
 
         inputs.add(input);
+        revise();
     }
 
     public void addOutput(LogicBlock output) {
         if (outputs.contains(output)) return;
 
         outputs.add(output);
+
     }
 
     public void setPowered(boolean powered) {
         if (this.powered == powered) return;
         this.powered = powered;
-        revise();
-    }
 
-    public void revise() {
         for (LogicBlock output : outputs) {
             output.revise();
         }
 
     }
+
+    public void revise() {}
 
     @Override
     public void remove() {

@@ -9,12 +9,16 @@ import social.godmode.logic.blocks.*;
 @Getter
 public enum CustomBlocks {
     LAMP(Block.REDSTONE_LAMP, LampBlock.class),
-    NOT(Block.STRUCTURE_BLOCK, NotBlock.class),
-    AND(Block.COMPARATOR, AndBlock.class),
-    OR(Block.AMETHYST_BLOCK, OrBlock.class),
+    NOT(Block.STRUCTURE_BLOCK, NOTBlock.class),
+    AND(Block.COMPARATOR, ANDBlock.class),
+    OR(Block.AMETHYST_BLOCK, ORBlock.class),
     CLOCK(Block.DAYLIGHT_DETECTOR, ClockBlock.class),
-    BEND(Block.BARRIER, BendBlock.class),
-    SWITCH(Block.LEVER, SwitchBlock.class);
+    BEND(Block.STRUCTURE_VOID, BendBlock.class),
+    SWITCH(Block.LEVER, SwitchBlock.class),
+    NOR(Block.AMETHYST_CLUSTER, NORBlock.class),
+    NAND(Block.REPEATER, NANDBlock.class),
+    XOR(Block.BAMBOO_BLOCK, XORBlock.class),
+    XNOR(Block.BONE_BLOCK, XNORBlock.class);
 
     private final Block block;
     private final Class<? extends LogicBlock> logicBlockClazz;

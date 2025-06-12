@@ -5,10 +5,10 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 import social.godmode.logic.LogicBlock;
 
-public class OrBlock extends LogicBlock {
+public class ORBlock extends LogicBlock {
 
-    public OrBlock(BlockVec position, Instance instance) {
-        super("Or", position, instance, Block.AMETHYST_BLOCK);
+    public ORBlock(BlockVec position, Instance instance) {
+        super("OR", position, instance, Block.AMETHYST_BLOCK);
     }
 
     @Override

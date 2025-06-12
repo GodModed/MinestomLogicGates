@@ -5,21 +5,20 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 import social.godmode.logic.LogicBlock;
 
-public class NotBlock extends LogicBlock {
+public class NOTBlock extends LogicBlock {
 
-    public NotBlock(BlockVec position, Instance instance) {
-        super("Not", position, instance, Block.STRUCTURE_BLOCK);
+    public NOTBlock(BlockVec position, Instance instance) {
+        super("NOT", position, instance, Block.STRUCTURE_BLOCK);
     }
 
     @Override
     public void revise() {
         if (getInputs().isEmpty()) {
-            setPowered(false);
+            setPowered(true);
         } else {
             setPowered(!getInputs().getFirst().isPowered());
         }
 
-        super.revise();
     }
 
 }
