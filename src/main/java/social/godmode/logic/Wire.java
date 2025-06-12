@@ -36,7 +36,7 @@ public class Wire extends Entity {
 
         editEntityMeta(BlockDisplayMeta.class, meta -> {
             meta.setBlockState(Block.BLACK_WOOL);
-            meta.setScale(new Vec(SIZE, SIZE, 0));
+            meta.setScale(new Vec(SIZE, SIZE, 0.1));
             meta.setTranslation(
                     new Vec(
                             -SIZE / 2
@@ -61,7 +61,7 @@ public class Wire extends Entity {
                 meta.setScale(new Vec(SIZE, SIZE, distance));
             });
             return TaskSchedule.stop();
-        }, TaskSchedule.tick(1));
+        }, TaskSchedule.tick(2));
 
     }
 

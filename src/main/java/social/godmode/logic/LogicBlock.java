@@ -2,14 +2,18 @@ package social.godmode.logic;
 
 import lombok.Getter;
 import net.kyori.adventure.text.Component;
+import net.minestom.server.MinecraftServer;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.coordinate.Pos;
+import net.minestom.server.coordinate.Vec;
 import net.minestom.server.entity.Entity;
 import net.minestom.server.entity.EntityType;
 import net.minestom.server.entity.metadata.display.AbstractDisplayMeta;
+import net.minestom.server.entity.metadata.display.BlockDisplayMeta;
 import net.minestom.server.entity.metadata.display.TextDisplayMeta;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
+import net.minestom.server.timer.TaskSchedule;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -23,13 +27,14 @@ public abstract class LogicBlock extends Entity {
     private final BlockVec blockPosition;
     private boolean powered = false;
     private final LogicGateManager manager;
+    private final Entity blockDisplay;
 
     public LogicBlock(String name, BlockVec position, Instance instance, Block block) {
         super(EntityType.TEXT_DISPLAY);
         this.hasPhysics = false;
         setNoGravity(true);
         this.blockPosition = position;
-        Pos pos = position.asVec().asPosition().add(0.5, 0.1, 0.5);
+        Pos pos = position.asVec().asPosition().add(0.5, 1.01, 0.5);
         pos = pos.withPitch(-90);
 
         editEntityMeta(TextDisplayMeta.class, meta -> {
@@ -42,7 +47,27 @@ public abstract class LogicBlock extends Entity {
         setInstance(instance).thenRun(() -> {
             teleport(finalPos);
         });
-        instance.setBlock(position, block);
+        instance.setBlock(position, Block.BARRIER);
+
+        this.blockDisplay = new Entity(EntityType.BLOCK_DISPLAY);
+        blockDisplay.setNoGravity(true);
+
+        blockDisplay.editEntityMeta(BlockDisplayMeta.class, meta -> {
+            meta.setBlockState(block);
+            meta.setScale(new Vec(1, 0.1, 1));
+            meta.setTransformationInterpolationDuration(5);
+            meta.setTransformationInterpolationStartDelta(0);
+        });
+
+        blockDisplay.setInstance(instance, blockPosition);
+
+        MinecraftServer.getSchedulerManager().scheduleTask(() -> {
+            blockDisplay.editEntityMeta(BlockDisplayMeta.class, meta -> {
+                meta.setScale(new Vec(1, 1, 1));
+            });
+            return TaskSchedule.stop();
+        }, TaskSchedule.tick(2));
+
         this.name = name;
 
         this.manager = LogicGateManager.forInstance(instance);
@@ -92,12 +117,16 @@ public abstract class LogicBlock extends Entity {
 
     public void revise() {}
 
+    public void setBlock(Block block) {
+        blockDisplay.editEntityMeta(BlockDisplayMeta.class, meta -> {
+            meta.setBlockState(block);
+        });
+    }
+
     @Override
     public void remove() {
 
         setPowered(false);
-
-        instance.setBlock(position, Block.AIR);
 
         for (LogicBlock input : inputs) {
             input.outputs.remove(this);
@@ -117,7 +146,10 @@ public abstract class LogicBlock extends Entity {
 
         manager.removeLogicBlock(this);
 
+        blockDisplay.remove();
+        instance.setBlock(blockPosition, Block.AIR);
         super.remove();
+
     }
 
     public abstract CustomBlocks getType();

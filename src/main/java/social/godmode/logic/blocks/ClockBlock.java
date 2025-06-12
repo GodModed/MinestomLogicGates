@@ -46,9 +46,9 @@ public class ClockBlock extends LogicBlock {
         super.setPowered(powered);
 
         if (isPowered()) {
-            getInstance().setBlock(getPosition(), Block.DAYLIGHT_DETECTOR.withProperty("inverted", "false"));
+            setBlock(Block.DAYLIGHT_DETECTOR.withProperty("inverted", "false"));
         } else {
-            getInstance().setBlock(getPosition(), Block.DAYLIGHT_DETECTOR.withProperty("inverted", "true"));
+            setBlock(Block.DAYLIGHT_DETECTOR.withProperty("inverted", "true"));
         }
 
     }

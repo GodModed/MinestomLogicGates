@@ -22,9 +22,9 @@ public class LampBlock extends LogicBlock {
         setPowered(getInputs().getFirst().isPowered());
 
         if (isPowered()) {
-            getInstance().setBlock(getPosition(), Block.REDSTONE_LAMP.withProperty("lit", "true"));
+            setBlock(Block.REDSTONE_LAMP.withProperty("lit", "true"));
         } else {
-            getInstance().setBlock(getPosition(), Block.REDSTONE_LAMP.withProperty("lit", "false"));
+            setBlock(Block.REDSTONE_LAMP.withProperty("lit", "false"));
         }
 
     }

@@ -18,9 +18,9 @@ public class SwitchBlock extends LogicBlock {
         super.setPowered(powered);
 
         if (isPowered()) {
-            getInstance().setBlock(getPosition(), Block.LEVER.withProperty("powered", "true"));
+            setBlock(Block.LEVER.withProperty("powered", "true"));
         } else {
-            getInstance().setBlock(getPosition(), Block.LEVER.withProperty("powered", "false"));
+            setBlock(Block.LEVER.withProperty("powered", "false"));
         }
 
     }
