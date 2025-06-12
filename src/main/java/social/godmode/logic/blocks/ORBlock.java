@@ -16,7 +16,6 @@ public class OrBlock extends LogicBlock {
         boolean anyPowered = getInputs().stream().anyMatch(LogicBlock::isPowered);
         setPowered(anyPowered);
 
-        super.revise();
     }
 
 }
