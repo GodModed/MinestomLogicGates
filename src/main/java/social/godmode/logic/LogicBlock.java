@@ -12,24 +12,23 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 
 import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 public abstract class LogicBlock extends Entity {
     private final String name;
-    private final ArrayList<LogicBlock> inputs = new ArrayList<>();
-    private final ArrayList<LogicBlock> outputs = new ArrayList<>();
-    private final Pos position;
+    private final List<LogicBlock> inputs = new ArrayList<>();
+    private final List<LogicBlock> outputs = new ArrayList<>();
+    private final List<Wire> connectedWires = new ArrayList<>();
+    private final BlockVec blockPosition;
     private boolean powered = false;
-
-    private static final ArrayList<LogicBlock> allBlocks = new ArrayList<>();
-
-
+    private final LogicGateManager manager;
 
     public LogicBlock(String name, BlockVec position, Instance instance, Block block) {
         super(EntityType.TEXT_DISPLAY);
         this.hasPhysics = false;
         setNoGravity(true);
-        this.position = position.asVec().asPosition();
+        this.blockPosition = position;
         Pos pos = position.asVec().asPosition().add(0.5, 0.1, 0.5);
         pos = pos.withPitch(-90);
 
@@ -46,7 +45,8 @@ public abstract class LogicBlock extends Entity {
         instance.setBlock(position, block);
         this.name = name;
 
-        allBlocks.add(this);
+        this.manager = LogicGateManager.forInstance(instance);
+        this.manager.addLogicBlock(this);
         revise();
     }
 
@@ -64,12 +64,28 @@ public abstract class LogicBlock extends Entity {
 
     }
 
+    public void addWire(Wire wire) {
+        if (connectedWires.contains(wire)) return;
+
+        connectedWires.add(wire);
+
+        wire.revise();
+    }
+
+    public void removeWire(Wire wire) {
+        connectedWires.remove(wire);
+    }
+
     public void setPowered(boolean powered) {
         if (this.powered == powered) return;
         this.powered = powered;
 
         for (LogicBlock output : outputs) {
             output.revise();
+        }
+
+        for (Wire wire : connectedWires) {
+            wire.revise();
         }
 
     }
@@ -91,33 +107,29 @@ public abstract class LogicBlock extends Entity {
             output.inputs.remove(this);
         }
 
-        allBlocks.remove(this);
-
-        // remove wires connected to this block
-        BlockVec pos = new BlockVec(getPosition());
-
-        for (int i = Wire.wires.size() - 1; i >= 0; i--) {
-            Wire wire = Wire.wires.get(i);
-            if (wire.getFrom().equals(pos) || wire.getTo().equals(pos)) {
-                wire.remove();
-            }
+        for (int i = connectedWires.size() - 1; i >= 0; i--) {
+            Wire wire = connectedWires.get(i);
+            LogicBlock otherBlock = wire.other(this);
+            otherBlock.removeWire(wire);
+            removeWire(wire);
+            wire.remove();
         }
+
+        manager.removeLogicBlock(this);
 
         super.remove();
     }
 
+    public abstract CustomBlocks getType();
+
     public static void link(LogicBlock input, LogicBlock output) {
         input.addOutput(output);
         output.addInput(input);
-    }
 
-    public static LogicBlock getLogicBlock(BlockVec pos) {
-        for (LogicBlock block : allBlocks) {
-            if (block.getPosition().equals(pos.asVec().asPosition())) {
-                return block;
-            }
-        }
-        return null;
+        Wire wire = new Wire(input, output, input.getInstance());
+        input.addWire(wire);
+        output.addWire(wire);
+
     }
 
 }

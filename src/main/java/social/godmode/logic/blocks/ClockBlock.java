@@ -6,6 +6,7 @@ import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
 import net.minestom.server.timer.Task;
 import net.minestom.server.timer.TaskSchedule;
+import social.godmode.logic.CustomBlocks;
 import social.godmode.logic.LogicBlock;
 
 public class ClockBlock extends LogicBlock {
@@ -50,6 +51,11 @@ public class ClockBlock extends LogicBlock {
             getInstance().setBlock(getPosition(), Block.DAYLIGHT_DETECTOR.withProperty("inverted", "true"));
         }
 
+    }
+
+    @Override
+    public CustomBlocks getType() {
+        return CustomBlocks.CLOCK;
     }
 
 }

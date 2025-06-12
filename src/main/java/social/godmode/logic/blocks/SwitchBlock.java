@@ -3,6 +3,7 @@ package social.godmode.logic.blocks;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
+import social.godmode.logic.CustomBlocks;
 import social.godmode.logic.LogicBlock;
 
 public class SwitchBlock extends LogicBlock {
@@ -27,6 +28,11 @@ public class SwitchBlock extends LogicBlock {
     @Override
     public void addInput(LogicBlock input) {
         throw new IllegalArgumentException("SwitchBlock does not support inputs.");
+    }
+
+    @Override
+    public CustomBlocks getType() {
+        return CustomBlocks.SWITCH;
     }
 
 }

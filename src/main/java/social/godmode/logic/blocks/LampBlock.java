@@ -3,6 +3,7 @@ package social.godmode.logic.blocks;
 import net.minestom.server.coordinate.BlockVec;
 import net.minestom.server.instance.Instance;
 import net.minestom.server.instance.block.Block;
+import social.godmode.logic.CustomBlocks;
 import social.godmode.logic.LogicBlock;
 
 public class LampBlock extends LogicBlock {
@@ -31,6 +32,11 @@ public class LampBlock extends LogicBlock {
     @Override
     public void addOutput(LogicBlock input) {
         throw new IllegalArgumentException("LampBlock cannot have outputs.");
+    }
+
+    @Override
+    public CustomBlocks getType() {
+        return CustomBlocks.LAMP;
     }
 
 }

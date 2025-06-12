@@ -15,10 +15,12 @@ import net.minestom.server.item.ItemStack;
 import net.minestom.server.item.Material;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.world.DimensionType;
-import social.godmode.logic.CustomBlocks;
-import social.godmode.logic.Wire;
-import social.godmode.logic.LogicBlock;
+import social.godmode.logic.*;
 import social.godmode.logic.blocks.SwitchBlock;
+import social.godmode.logic.schematic.IRSchematic;
+import social.godmode.logic.schematic.Schematic;
+import social.godmode.logic.schematic.SchematicCommand;
+import social.godmode.logic.schematic.SchematicManager;
 
 import java.text.DecimalFormat;
 import java.util.HashMap;
@@ -30,6 +32,7 @@ public class Main {
 
     private static final String DIMENSION_ID = "dimension:bright";
     private static InstanceContainer lobbyInstance;
+    private static final SchematicManager schematicManager = new SchematicManager();
 
     public static void main(String[] args) {
         MinecraftServer server = MinecraftServer.init();
@@ -43,6 +46,8 @@ public class Main {
         initializeEventHandlers();
         msptBossBar();
 
+        MinecraftServer.getSchedulerManager().buildShutdownTask(schematicManager::saveAllSchematics);
+        MinecraftServer.getCommandManager().register(new SchematicCommand());
 
         server.start("0.0.0.0", 25565);
     }
@@ -68,6 +73,8 @@ public class Main {
     private static void addItems(Player player) {
         addItem(player, Material.STICK, "Wire tool");
         addItem(player, Material.BLAZE_ROD, "Remove tool");
+        addItem(player, Material.BUCKET, "Copy tool");
+        addItem(player, Material.RAW_COPPER_BLOCK, "Paste tool");
 
         for (CustomBlocks customBlocks : CustomBlocks.values()) {
             addItem(player, customBlocks.getBlock().registry().material(), customBlocks.name());
@@ -76,6 +83,7 @@ public class Main {
     }
 
     private static void initializeEventHandlers() {
+
         GlobalEventHandler handler = MinecraftServer.getGlobalEventHandler();
         handler.addListener(AsyncPlayerConfigurationEvent.class, event -> {
             final Player player = event.getPlayer();
@@ -107,40 +115,52 @@ public class Main {
                 }
             }
 
+            if (material == Material.RAW_COPPER_BLOCK) {
+
+                Schematic schematic = schematicManager.getPasteSchematic(event.getPlayer());
+                if (schematic == null) return;
+
+                schematic.paste(event.getBlockPosition(), event.getInstance());
+
+            }
+
         });
 
         Map<Player, LogicBlock> wireToolSelection = new HashMap<>();
 
         handler.addListener(PlayerBlockInteractEvent.class, event -> {
+
+            LogicGateManager manager = LogicGateManager.forInstance(event.getInstance());
+            LogicBlock logicBlock = manager.getLogicBlock(event.getBlockPosition());
+            if (logicBlock == null) return;
+
             if (event.getPlayer().getItemInHand(event.getHand()).material() == Material.STICK) {
-                LogicBlock block = LogicBlock.getLogicBlock(event.getBlockPosition());
-                if (block == null) return;
                 if (wireToolSelection.get(event.getPlayer()) == null) {
-                    wireToolSelection.put(event.getPlayer(), block);
-                    event.getPlayer().sendMessage(Component.text("Selected " + block.getName() + ". Click another block to link them."));
+                    wireToolSelection.put(event.getPlayer(), logicBlock);
+                    event.getPlayer().sendMessage(Component.text("Selected " + logicBlock.getName() + ". Click another block to link them."));
                     return;
                 }
                 LogicBlock selectedBlock = wireToolSelection.get(event.getPlayer());
-                if (selectedBlock != block) {
-                    LogicBlock.link(selectedBlock, block);
-                    new Wire(selectedBlock.getPosition(), block.getPosition(), event.getInstance());
-                    event.getPlayer().sendMessage(Component.text("Linked " + selectedBlock.getName() + " to " + block.getName()));
+                if (selectedBlock != logicBlock) {
+                    LogicBlock.link(selectedBlock, logicBlock);
+                    event.getPlayer().sendMessage(Component.text("Linked " + selectedBlock.getName() + " to " + logicBlock.getName()));
                 } else {
                     event.getPlayer().sendMessage(Component.text("Unselected " + selectedBlock.getName()));
                 }
                 wireToolSelection.remove(event.getPlayer());
 
             } else if (event.getPlayer().getItemInHand(event.getHand()).material() == Material.BLAZE_ROD) {
-                LogicBlock block = LogicBlock.getLogicBlock(event.getBlockPosition());
-                if (block == null) return;
-                block.remove();
-                event.getPlayer().sendMessage(Component.text("Removed " + block.getName()));
+                logicBlock.remove();
+                event.getPlayer().sendMessage(Component.text("Removed " + logicBlock.getName()));
+            } else if (event.getPlayer().getItemInHand(event.getHand()).material() == Material.BUCKET) {
+                schematicManager.getSchematic(event.getPlayer()).addBlock(logicBlock);
+                event.getPlayer().sendMessage(Component.text("Added " + logicBlock.getName()));
             }
         });
 
         handler.addListener(PlayerPickBlockEvent.class, event -> {
-            BlockVec position = event.getBlockPosition();
-            LogicBlock logicBlock = LogicBlock.getLogicBlock(position);
+            LogicGateManager manager = LogicGateManager.forInstance(event.getInstance());
+            LogicBlock logicBlock = manager.getLogicBlock(event.getBlockPosition());
             if (logicBlock == null) return;
 
             if (!(logicBlock instanceof SwitchBlock)) return;
