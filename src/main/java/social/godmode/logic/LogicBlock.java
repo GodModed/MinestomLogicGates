@@ -34,13 +34,13 @@ public abstract class LogicBlock extends Entity {
         this.hasPhysics = false;
         setNoGravity(true);
         this.blockPosition = position;
-        Pos pos = position.asVec().asPosition().add(0.5, 1.01, 0.5);
+        Pos pos = position.asVec().asPosition().add(0.5, 1.5, 0.5);
         pos = pos.withPitch(-90);
 
         editEntityMeta(TextDisplayMeta.class, meta -> {
             meta.setText(Component.text(name));
             meta.setSeeThrough(true);
-            meta.setBillboardRenderConstraints(AbstractDisplayMeta.BillboardConstraints.VERTICAL);
+            meta.setBillboardRenderConstraints(AbstractDisplayMeta.BillboardConstraints.CENTER);
         });
 
         Pos finalPos = pos;

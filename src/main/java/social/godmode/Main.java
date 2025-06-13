@@ -16,6 +16,7 @@ import net.minestom.server.item.Material;
 import net.minestom.server.registry.DynamicRegistry;
 import net.minestom.server.world.DimensionType;
 import social.godmode.logic.*;
+import social.godmode.logic.blocks.ButtonBlock;
 import social.godmode.logic.blocks.SwitchBlock;
 import social.godmode.logic.schematic.IRSchematic;
 import social.godmode.logic.schematic.Schematic;
@@ -163,9 +164,10 @@ public class Main {
             LogicBlock logicBlock = manager.getLogicBlock(event.getBlockPosition());
             if (logicBlock == null) return;
 
-            if (!(logicBlock instanceof SwitchBlock)) return;
+            if (logicBlock instanceof SwitchBlock || logicBlock instanceof ButtonBlock) {
+                logicBlock.setPowered(!logicBlock.isPowered());
+            }
 
-            logicBlock.setPowered(!logicBlock.isPowered());
 
         });
 

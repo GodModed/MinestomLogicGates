@@ -20,7 +20,8 @@ public enum CustomBlocks {
     NOR(Block.AMETHYST_CLUSTER, NORBlock::new),
     NAND(Block.REPEATER, NANDBlock::new),
     XOR(Block.BAMBOO_BLOCK, XORBlock::new),
-    XNOR(Block.BONE_BLOCK, XNORBlock::new);
+    XNOR(Block.BONE_BLOCK, XNORBlock::new),
+    BUTTON(Block.STONE_BUTTON, ButtonBlock::new);
 
     private final Block block;
     private final BiFunction<BlockVec, Instance, LogicBlock> logicBlockConstructor;
